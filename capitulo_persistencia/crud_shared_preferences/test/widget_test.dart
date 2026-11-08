@@ -22,6 +22,23 @@ void main() {
     await tester.pump();
 
     expect(find.text('Informe o nome.'), findsOneWidget);
-    expect(find.text('Informe um preço válido (maior ou igual a zero).'), findsOneWidget);
+    expect(find.text('Informe um preço válido (ex.: 19,90).'), findsOneWidget);
+    expect(find.text('Informe a quantidade (número inteiro).'), findsOneWidget);
+  });
+
+  testWidgets('A2: preço zero e quantidade negativa são rejeitados', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: ProdutoDialog())),
+    );
+
+    // Os três campos aparecem na ordem: nome, preço, quantidade.
+    await tester.enterText(find.byType(TextFormField).at(0), 'Caderno');
+    await tester.enterText(find.byType(TextFormField).at(1), '0');
+    await tester.enterText(find.byType(TextFormField).at(2), '-1');
+    await tester.tap(find.text('Salvar'));
+    await tester.pump();
+
+    expect(find.text('O preço deve ser maior que zero.'), findsOneWidget);
+    expect(find.text('A quantidade não pode ser negativa.'), findsOneWidget);
   });
 }

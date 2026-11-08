@@ -28,6 +28,9 @@ Ambiente usado: ______________________ (Chrome/web-server ou Android)
 
 ## Tabela
 
+> Depois da A2, a mensagem do teste 4 passou a ser "Informe um preço válido (ex.: 19,90)." e o
+> formulário também tem o campo Quantidade (preencher, por exemplo, `1`). Os demais resultados não mudam.
+
 | # | Teste | Procedimento | Resultado esperado | Observado | Conferência manual |
 |---|---|---|---|---|---|
 | 1 | Cadastro | Novo produto → nome `Caderno`, preço `12,50` → Salvar | O novo produto aparece na lista (`R$ 12,50`) e o SnackBar "Produto cadastrado." | | |

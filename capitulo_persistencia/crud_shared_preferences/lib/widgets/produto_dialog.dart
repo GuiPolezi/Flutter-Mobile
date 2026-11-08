@@ -99,8 +99,12 @@ class _ProdutoDialogState extends State<ProdutoDialog> {
                     final preco = double.tryParse(
                       (valor ?? '').trim().replaceAll(',', '.'),
                     );
-                    if (preco == null || !preco.isFinite || preco < 0) {
-                      return 'Informe um preço válido (maior ou igual a zero).';
+                    if (preco == null || !preco.isFinite) {
+                      return 'Informe um preço válido (ex.: 19,90).';
+                    }
+                    // A2: regra de negócio, o preço precisa ser maior que zero.
+                    if (preco <= 0) {
+                      return 'O preço deve ser maior que zero.';
                     }
                     return null;
                   },
@@ -118,6 +122,10 @@ class _ProdutoDialogState extends State<ProdutoDialog> {
                     final quantidade = int.tryParse((valor ?? '').trim());
                     if (quantidade == null) {
                       return 'Informe a quantidade (número inteiro).';
+                    }
+                    // A2: regra de negócio, não existe estoque negativo.
+                    if (quantidade < 0) {
+                      return 'A quantidade não pode ser negativa.';
                     }
                     return null;
                   },

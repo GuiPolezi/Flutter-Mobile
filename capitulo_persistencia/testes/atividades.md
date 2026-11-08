@@ -19,3 +19,16 @@
 Como voltar à versão antiga para os testes A1.5/A1.6: `git checkout <commit da etapa> -- <projeto>/lib`,
 executar e cadastrar; depois `git checkout HEAD -- <projeto>/lib` e executar de novo **sem desinstalar**
 (no Chrome, na mesma origem: `flutter run -d web-server --web-port 8080`).
+
+## A2 — Validação de negócio
+
+| # | Projeto | Procedimento | Resultado esperado | Observado | Conferência manual |
+|---|---|---|---|---|---|
+| A2.1 | P1 e P2 | Novo produto → preço `0` → Salvar | "O preço deve ser maior que zero." | | |
+| A2.2 | P1 e P2 | Novo produto → preço `-5` → Salvar | "O preço deve ser maior que zero." | | |
+| A2.3 | P1 e P2 | Novo produto → preço `0,01` e quantidade `0` → Salvar | Aceito: o preço é maior que zero e estoque zero é permitido | | |
+| A2.4 | P1 e P2 | Novo produto → quantidade `-1` → Salvar | "A quantidade não pode ser negativa." | | |
+| A2.5 | P1 e P2 | Novo produto → preço `abc` → Salvar | "Informe um preço válido (ex.: 19,90)." | | |
+| A2.6 | P1 e P2 | Editar um produto antigo e salvar sem mudar nada | Salva normalmente (as regras valem também na edição) | | |
+
+Teste automático: `flutter test` (grupo "A2: preço zero e quantidade negativa são rejeitados").
