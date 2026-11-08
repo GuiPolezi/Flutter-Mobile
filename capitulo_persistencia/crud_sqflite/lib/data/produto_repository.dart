@@ -41,10 +41,15 @@ class ProdutoRepository {
     return _banco!;
   }
 
-  // READ: SELECT id, nome, preco, quantidade FROM produtos ORDER BY id DESC.
-  Future<List<Produto>> listar() async {
+  // READ: SELECT * FROM produtos ORDER BY ...
+  // A3: quem ordena é o banco (cláusula ORDER BY). COLLATE NOCASE faz o
+  // SQLite ignorar maiúsculas/minúsculas ao comparar os nomes.
+  Future<List<Produto>> listar({bool ordenarPorNome = false}) async {
     final db = await _database;
-    final registros = await db.query('produtos', orderBy: 'id DESC');
+    final registros = await db.query(
+      'produtos',
+      orderBy: ordenarPorNome ? 'nome COLLATE NOCASE ASC' : 'id DESC',
+    );
     return registros.map(Produto.fromMap).toList();
   }
 

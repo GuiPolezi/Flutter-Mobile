@@ -6,16 +6,33 @@ class ProdutoRepository {
   static const String _chave = 'crud.produtos';
   final SharedPreferencesAsync _prefs = SharedPreferencesAsync();
 
-  // READ: uma chave guarda toda a lista, codificada em JSON.
-  Future<List<Produto>> listar() async {
+  // Lê a lista COMPLETA gravada na chave, sem ordenar.
+  // A3: inserir, atualizar e excluir usam este método, e não listar(),
+  // porque regravam todos os produtos. Se usassem uma lista ordenada ou
+  // filtrada, os produtos fora do filtro seriam apagados ao regravar.
+  Future<List<Produto>> _lerTodos() async {
     final texto = await _prefs.getString(_chave);
     if (texto == null || texto.isEmpty) return [];
 
     final dados = jsonDecode(texto) as List<dynamic>;
-    final produtos = dados.map((item) {
+    return dados.map((item) {
       return Produto.fromMap(Map<String, Object?>.from(item as Map));
     }).toList();
-    produtos.sort((a, b) => b.id.compareTo(a.id));
+  }
+
+  // READ: uma chave guarda toda a lista, codificada em JSON.
+  // A3: a ordenação é feita aqui, em Dart, depois de carregar a lista.
+  Future<List<Produto>> listar({bool ordenarPorNome = false}) async {
+    final produtos = await _lerTodos();
+    if (ordenarPorNome) {
+      // Nome crescente; minúsculas para "caneta" não ficar depois de "Zebra".
+      produtos.sort(
+        (a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()),
+      );
+    } else {
+      // ID decrescente: os mais recentes primeiro (como no Código 06).
+      produtos.sort((a, b) => b.id.compareTo(a.id));
+    }
     return produtos;
   }
 
@@ -27,7 +44,7 @@ class ProdutoRepository {
 
   // CREATE: gera um ID simples, acrescenta o produto e regrava o JSON.
   Future<void> inserir(String nome, double preco, int quantidade) async {
-    final produtos = await listar();
+    final produtos = await _lerTodos();
     final maiorId = produtos.fold<int>(
       0,
       (maior, p) => p.id > maior ? p.id : maior,
@@ -43,7 +60,7 @@ class ProdutoRepository {
 
   // UPDATE: localiza o produto pelo ID e regrava a lista.
   Future<void> atualizar(Produto produto) async {
-    final produtos = await listar();
+    final produtos = await _lerTodos();
     final indice = produtos.indexWhere((p) => p.id == produto.id);
     if (indice == -1) throw StateError('Produto não encontrado.');
     produtos[indice] = produto;
@@ -52,7 +69,7 @@ class ProdutoRepository {
 
   // DELETE: remove pelo ID e regrava a lista.
   Future<void> excluir(int id) async {
-    final produtos = await listar();
+    final produtos = await _lerTodos();
     final quantidadeAnterior = produtos.length;
     produtos.removeWhere((p) => p.id == id);
     if (produtos.length == quantidadeAnterior) {

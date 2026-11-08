@@ -32,3 +32,17 @@ executar e cadastrar; depois `git checkout HEAD -- <projeto>/lib` e executar de 
 | A2.6 | P1 e P2 | Editar um produto antigo e salvar sem mudar nada | Salva normalmente (as regras valem também na edição) | | |
 
 Teste automático: `flutter test` (grupo "A2: preço zero e quantidade negativa são rejeitados").
+
+## A3 — Ordenação
+
+Ícone na AppBar: **A→Z** (`sort_by_alpha`, tooltip "Ordenar por nome") quando a lista está por ID e
+**1-2-3** (`format_list_numbered`, tooltip "Ordenar por ID") quando está por nome.
+
+| # | Projeto | Procedimento | Resultado esperado | Observado | Conferência manual |
+|---|---|---|---|---|---|
+| A3.1 | P1 e P2 | Cadastrar, nesta ordem, `caneta`, `Borracha`, `Apontador` (preço 1, qtd 1) | Lista por ID decrescente: Apontador, Borracha, caneta | | |
+| A3.2 | P1 e P2 | Tocar no ícone A→Z | Apontador, Borracha, caneta (o "c" minúsculo **não** vai para o fim) | | |
+| A3.3 | P1 e P2 | Com a lista por nome, cadastrar `Agenda` | Agenda aparece no topo (a ordem escolhida continua valendo) | | |
+| A3.4 | P1 e P2 | Com a lista por nome, editar e excluir um item | Só o item escolhido muda; nenhum outro produto some | | |
+| A3.5 | P1 e P2 | Tocar no ícone 1-2-3 | Volta para ID decrescente | | |
+| A3.6 | P1 e P2 | Fechar e reabrir o app | Volta para ID decrescente (a escolha fica só em memória, numa variável de estado) | | |

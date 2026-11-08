@@ -18,6 +18,7 @@ class _ProdutosPageState extends State<ProdutosPage> {
   bool _carregando = true;
   bool _processando = false;
   String? _erro;
+  bool _ordenarPorNome = false; // A3: false = ID decrescente; true = nome crescente.
 
   @override
   void initState() {
@@ -29,7 +30,9 @@ class _ProdutosPageState extends State<ProdutosPage> {
   Future<void> _carregar() async {
     setState(() => _carregando = true);
     try {
-      final produtos = await _repositorio.listar();
+      final produtos = await _repositorio.listar(
+        ordenarPorNome: _ordenarPorNome,
+      );
       if (!mounted) return;
       setState(() {
         _produtos = produtos;
@@ -117,7 +120,25 @@ class _ProdutosPageState extends State<ProdutosPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(widget.titulo)),
+      appBar: AppBar(
+        title: Text(widget.titulo),
+        actions: [
+          // A3: alterna a ordenação e pede a lista de novo ao repositório.
+          // O ícone e o tooltip mostram o que acontece ao tocar.
+          IconButton(
+            tooltip: _ordenarPorNome ? 'Ordenar por ID' : 'Ordenar por nome',
+            onPressed: _processando
+                ? null
+                : () {
+                    setState(() => _ordenarPorNome = !_ordenarPorNome);
+                    _carregar();
+                  },
+            icon: Icon(
+              _ordenarPorNome ? Icons.format_list_numbered : Icons.sort_by_alpha,
+            ),
+          ),
+        ],
+      ),
       body: _carregando
           ? const Center(child: CircularProgressIndicator())
           : _erro != null
