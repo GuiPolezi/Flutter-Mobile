@@ -21,9 +21,23 @@ class ProdutoRepository {
   }
 
   // READ: uma chave guarda toda a lista, codificada em JSON.
-  // A3: a ordenação é feita aqui, em Dart, depois de carregar a lista.
-  Future<List<Produto>> listar({bool ordenarPorNome = false}) async {
-    final produtos = await _lerTodos();
+  // A3/A4: filtro e ordenação são feitos aqui, em Dart, depois de carregar
+  // a lista inteira (o SharedPreferences não sabe consultar, só guardar).
+  Future<List<Produto>> listar({
+    bool ordenarPorNome = false,
+    String busca = '',
+  }) async {
+    var produtos = await _lerTodos();
+
+    // A4: mantém só os produtos cujo nome contém o texto digitado,
+    // ignorando maiúsculas/minúsculas.
+    final termo = busca.trim().toLowerCase();
+    if (termo.isNotEmpty) {
+      produtos = produtos
+          .where((p) => p.nome.toLowerCase().contains(termo))
+          .toList();
+    }
+
     if (ordenarPorNome) {
       // Nome crescente; minúsculas para "caneta" não ficar depois de "Zebra".
       produtos.sort(

@@ -41,13 +41,22 @@ class ProdutoRepository {
     return _banco!;
   }
 
-  // READ: SELECT * FROM produtos ORDER BY ...
+  // READ: SELECT * FROM produtos [WHERE nome LIKE ?] ORDER BY ...
   // A3: quem ordena é o banco (cláusula ORDER BY). COLLATE NOCASE faz o
   // SQLite ignorar maiúsculas/minúsculas ao comparar os nomes.
-  Future<List<Produto>> listar({bool ordenarPorNome = false}) async {
+  // A4: quem filtra também é o banco. O texto digitado vai em whereArgs e
+  // substitui o '?' como VALOR; nunca é concatenado no SQL (seção 3.7).
+  // Os '%' antes e depois significam "contém".
+  Future<List<Produto>> listar({
+    bool ordenarPorNome = false,
+    String busca = '',
+  }) async {
     final db = await _database;
+    final termo = busca.trim();
     final registros = await db.query(
       'produtos',
+      where: termo.isEmpty ? null : 'nome LIKE ?',
+      whereArgs: termo.isEmpty ? null : ['%$termo%'],
       orderBy: ordenarPorNome ? 'nome COLLATE NOCASE ASC' : 'id DESC',
     );
     return registros.map(Produto.fromMap).toList();

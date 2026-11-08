@@ -19,11 +19,20 @@ class _ProdutosPageState extends State<ProdutosPage> {
   bool _processando = false;
   String? _erro;
   bool _ordenarPorNome = false; // A3: false = ID decrescente; true = nome crescente.
+  late final TextEditingController _buscaController; // A4: texto da busca.
 
   @override
   void initState() {
     super.initState();
+    // O controller é criado antes de _carregar(), que lê o texto da busca.
+    _buscaController = TextEditingController();
     _carregar();
+  }
+
+  @override
+  void dispose() {
+    _buscaController.dispose();
+    super.dispose();
   }
 
   // READ: obtém os produtos armazenados e atualiza a tela.
@@ -32,6 +41,7 @@ class _ProdutosPageState extends State<ProdutosPage> {
     try {
       final produtos = await _repositorio.listar(
         ordenarPorNome: _ordenarPorNome,
+        busca: _buscaController.text,
       );
       if (!mounted) return;
       setState(() {
@@ -139,60 +149,91 @@ class _ProdutosPageState extends State<ProdutosPage> {
           ),
         ],
       ),
-      body: _carregando
-          ? const Center(child: CircularProgressIndicator())
-          : _erro != null
-              ? Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(_erro!, textAlign: TextAlign.center),
-                      const SizedBox(height: 12),
-                      OutlinedButton(
-                        onPressed: _carregar,
-                        child: const Text('Tentar novamente'),
-                      ),
-                    ],
-                  ),
-                )
-              : _produtos.isEmpty
-                  ? const Center(child: Text('Nenhum produto cadastrado.'))
-                  : ListView.separated(
-                      itemCount: _produtos.length,
-                      // Dart 3.7+: '_' pode se repetir; o Código 08 usava (_, __).
-                      separatorBuilder: (_, _) => const Divider(height: 1),
-                      itemBuilder: (context, indice) {
-                        final produto = _produtos[indice];
-                        return ListTile(
-                          leading: CircleAvatar(child: Text('${produto.id}')),
-                          title: Text(produto.nome),
-                          // A1: preço e estoque na mesma linha, como no Material 2.
-                          subtitle: Text(
-                            'R\$ ${produto.preco.toStringAsFixed(2).replaceAll('.', ',')}'
-                            ' • Estoque: ${produto.quantidade}',
+      // A4: Column com o campo de busca em cima e a lista ocupando o resto
+      // da tela com Expanded (como no Material 2).
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: TextField(
+              controller: _buscaController,
+              decoration: const InputDecoration(
+                labelText: 'Buscar por nome',
+                prefixIcon: Icon(Icons.search),
+                border: OutlineInputBorder(),
+              ),
+              // A cada letra digitada, o repositório é consultado de novo.
+              onChanged: (_) => _carregar(),
+            ),
+          ),
+          Expanded(
+            child: _carregando
+                ? const Center(child: CircularProgressIndicator())
+                : _erro != null
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(_erro!, textAlign: TextAlign.center),
+                            const SizedBox(height: 12),
+                            OutlinedButton(
+                              onPressed: _carregar,
+                              child: const Text('Tentar novamente'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : _produtos.isEmpty
+                        // A4: mensagens diferentes para "nada cadastrado" e "busca sem resultado".
+                        ? Center(
+                            child: Text(
+                              _buscaController.text.trim().isEmpty
+                                  ? 'Nenhum produto cadastrado.'
+                                  : 'Nenhum produto encontrado.',
+                            ),
+                          )
+                        : ListView.separated(
+                            itemCount: _produtos.length,
+                            // Dart 3.7+: '_' pode se repetir; o Código 08 usava (_, __).
+                            separatorBuilder: (_, _) => const Divider(height: 1),
+                            itemBuilder: (context, indice) {
+                              final produto = _produtos[indice];
+                              // A4: editar e excluir recebem o próprio objeto
+                              // (e o repositório usa produto.id), nunca o
+                              // 'indice', que é a posição na lista filtrada.
+                              return ListTile(
+                                leading: CircleAvatar(child: Text('${produto.id}')),
+                                title: Text(produto.nome),
+                                // A1: preço e estoque na mesma linha, como no Material 2.
+                                subtitle: Text(
+                                  'R\$ ${produto.preco.toStringAsFixed(2).replaceAll('.', ',')}'
+                                  ' • Estoque: ${produto.quantidade}',
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      tooltip: 'Editar',
+                                      onPressed: _processando
+                                          ? null
+                                          : () => _abrirFormulario(produto),
+                                      icon: const Icon(Icons.edit_outlined),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'Excluir',
+                                      onPressed: _processando
+                                          ? null
+                                          : () => _excluir(produto),
+                                      icon: const Icon(Icons.delete_outline),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                tooltip: 'Editar',
-                                onPressed: _processando
-                                    ? null
-                                    : () => _abrirFormulario(produto),
-                                icon: const Icon(Icons.edit_outlined),
-                              ),
-                              IconButton(
-                                tooltip: 'Excluir',
-                                onPressed: _processando
-                                    ? null
-                                    : () => _excluir(produto),
-                                icon: const Icon(Icons.delete_outline),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _processando ? null : () => _abrirFormulario(),
         icon: const Icon(Icons.add),
