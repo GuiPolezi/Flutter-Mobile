@@ -1,0 +1,38 @@
+DECLARAÇÃO DE USO DE IA — Capítulo "Dois CRUDs em Flutter: SharedPreferences e SQLite"
+(RASCUNHO — revisar e reescrever com minhas palavras antes de entregar)
+
+Utilizei inteligência artificial nesta atividade.
+
+Ferramenta: Claude Code (Anthropic), utilizado como assistente de
+programação a partir de um prompt escrito por mim (PROMPT_CRUD_PERSISTENCIA.md),
+com base no PDF do capítulo, nos zips do professor e nos PDFs das aulas
+(Material 2 — Listas; Exercícios de 21/08).
+
+Finalidades:
+1. Ambiente: conferir o flutter doctor/devices (Código 01) e criar, pela
+   linha de comando, o emulador Android usado no Projeto 2.
+2. Código base: criar os dois projetos com flutter create e flutter pub add
+   e copiar os Códigos 04 a 14 do professor. A única mudança foi trocar
+   (_, __) por (_, _) por causa de um aviso do flutter analyze (ver DUVIDAS.md).
+3. Atividades da seção 7: implementar quantidade em estoque (com migração
+   do banco SQLite), validação de negócio, ordenação, busca por nome e o
+   desafio das categorias. Cada decisão foi explicada indicando em qual
+   material do professor o recurso já tinha aparecido.
+4. Testes: rascunho dos roteiros da seção 4 e das atividades (pasta testes/)
+   e um teste automático mínimo do formulário com flutter_test. As colunas
+   "Observado" e "Conferência manual" foram preenchidas por mim depois de
+   executar o app.
+5. Documentação: rascunho do README, do RESPOSTAS.md (reescrito por mim),
+   do DUVIDAS.md e deste arquivo.
+
+O trabalho foi feito em etapas, com um commit por etapa. Revisei o código
+de cada etapa, executei o Projeto 1 no Chrome e o Projeto 2 no emulador
+Android, fiz manualmente os testes dos roteiros e compreendo o código
+entregue, sendo capaz de explicar cada trecho (modelo, toMap/fromMap,
+repositórios, async/await, formulário com validator, setState/mounted,
+SQL com parâmetros ?, migração com onUpgrade e LEFT JOIN).
+
+Foram usados somente os pacotes do capítulo: shared_preferences
+(SharedPreferencesAsync), sqflite e path, adicionados com flutter pub add.
+Não foram usados gerenciadores de estado, outros pacotes de banco, rotas
+nomeadas nem pacotes extras de teste.
