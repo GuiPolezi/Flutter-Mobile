@@ -70,3 +70,24 @@ repositório usa `produto.id`. O `indice` do `itemBuilder` (posição na lista *
 | A4.9 | P1 e P2 | Ainda com a busca `teclado`: mudar a quantidade para `9` → Salvar → apagar a busca | Só o Teclado tem `Estoque: 9`; Mouse e Monitor não mudaram | | |
 | A4.10 | P1 e P2 | Buscar `mouse` → Excluir | O diálogo pergunta "Deseja excluir \"Mouse\"?"; ao confirmar, só o Mouse some | | |
 | A4.11 | P1 | Com a busca `mouse` ativa, cadastrar `Caneca` → apagar a busca | Todos os produtos continuam gravados (as escritas usam `_lerTodos()`, não a lista filtrada) | | |
+
+## A5 — Teste do identificador
+
+Começar com a lista **vazia** nos dois projetos (P1: limpar os dados do site ou excluir todos os produtos;
+P2: excluir todos ou desinstalar antes). Atenção: no P2, excluir todos **não** zera o contador do
+`AUTOINCREMENT`. Para começar do 1, desinstale o app.
+
+Procedimento: cadastrar `Item A`, `Item B`, `Item C` (preço 1, quantidade 1) → excluir o **terceiro**
+(`Item C`) → cadastrar `Item D`.
+
+| Passo | P1 esperado | P1 observado | P2 esperado | P2 observado |
+|---|---|---|---|---|
+| ID do Item A | 1 | | 1 | |
+| ID do Item B | 2 | | 2 | |
+| ID do Item C | 3 | | 3 | |
+| Excluir Item C | some | | some | |
+| **ID do Item D** | **3** (maior restante = 2; `2 + 1`) | | **4** (`AUTOINCREMENT` não reemite o 3) | |
+
+Explicação: `RESPOSTAS.md`, seção A5.
+
+Conferência manual: ______
