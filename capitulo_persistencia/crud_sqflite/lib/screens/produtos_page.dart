@@ -62,7 +62,11 @@ class _ProdutosPageState extends State<ProdutosPage> {
     setState(() => _processando = true);
     try {
       if (produtoOriginal == null) {
-        await _repositorio.inserir(produto.nome, produto.preco);
+        await _repositorio.inserir(
+          produto.nome,
+          produto.preco,
+          produto.quantidade,
+        );
       } else {
         await _repositorio.atualizar(produto);
       }
@@ -141,8 +145,10 @@ class _ProdutosPageState extends State<ProdutosPage> {
                         return ListTile(
                           leading: CircleAvatar(child: Text('${produto.id}')),
                           title: Text(produto.nome),
+                          // A1: preço e estoque na mesma linha, como no Material 2.
                           subtitle: Text(
-                            'R\$ ${produto.preco.toStringAsFixed(2).replaceAll('.', ',')}',
+                            'R\$ ${produto.preco.toStringAsFixed(2).replaceAll('.', ',')}'
+                            ' • Estoque: ${produto.quantidade}',
                           ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,

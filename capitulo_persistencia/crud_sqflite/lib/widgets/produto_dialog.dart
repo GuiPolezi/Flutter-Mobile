@@ -14,6 +14,7 @@ class _ProdutoDialogState extends State<ProdutoDialog> {
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _nomeController;
   late final TextEditingController _precoController;
+  late final TextEditingController _quantidadeController; // A1
 
   @override
   void initState() {
@@ -24,12 +25,17 @@ class _ProdutoDialogState extends State<ProdutoDialog> {
           ? ''
           : widget.produto!.preco.toStringAsFixed(2).replaceAll('.', ','),
     );
+    // A1: na edição, o campo já vem com a quantidade atual.
+    _quantidadeController = TextEditingController(
+      text: widget.produto == null ? '' : '${widget.produto!.quantidade}',
+    );
   }
 
   @override
   void dispose() {
     _nomeController.dispose();
     _precoController.dispose();
+    _quantidadeController.dispose();
     super.dispose();
   }
 
@@ -40,10 +46,17 @@ class _ProdutoDialogState extends State<ProdutoDialog> {
     final preco = double.parse(
       _precoController.text.trim().replaceAll(',', '.'),
     );
+    // O validator já garantiu que o texto é um inteiro válido.
+    final quantidade = int.parse(_quantidadeController.text.trim());
 
     // No cadastro, o repositório define o ID. Na edição, mantemos o ID.
     Navigator.of(context).pop(
-      Produto(id: widget.produto?.id ?? 0, nome: nome, preco: preco),
+      Produto(
+        id: widget.produto?.id ?? 0,
+        nome: nome,
+        preco: preco,
+        quantidade: quantidade,
+      ),
     );
   }
 
@@ -88,6 +101,23 @@ class _ProdutoDialogState extends State<ProdutoDialog> {
                     );
                     if (preco == null || !preco.isFinite || preco < 0) {
                       return 'Informe um preço válido (maior ou igual a zero).';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                // A1: quantidade em estoque, só números inteiros.
+                TextFormField(
+                  controller: _quantidadeController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(
+                    labelText: 'Quantidade em estoque',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (valor) {
+                    final quantidade = int.tryParse((valor ?? '').trim());
+                    if (quantidade == null) {
+                      return 'Informe a quantidade (número inteiro).';
                     }
                     return null;
                   },

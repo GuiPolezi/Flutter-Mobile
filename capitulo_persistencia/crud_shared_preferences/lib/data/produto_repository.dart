@@ -26,13 +26,18 @@ class ProdutoRepository {
   }
 
   // CREATE: gera um ID simples, acrescenta o produto e regrava o JSON.
-  Future<void> inserir(String nome, double preco) async {
+  Future<void> inserir(String nome, double preco, int quantidade) async {
     final produtos = await listar();
     final maiorId = produtos.fold<int>(
       0,
       (maior, p) => p.id > maior ? p.id : maior,
     );
-    produtos.add(Produto(id: maiorId + 1, nome: nome, preco: preco));
+    produtos.add(Produto(
+      id: maiorId + 1,
+      nome: nome,
+      preco: preco,
+      quantidade: quantidade,
+    ));
     await _salvarLista(produtos);
   }
 
