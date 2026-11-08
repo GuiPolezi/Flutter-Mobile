@@ -1,30 +1,27 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Teste mínimo do formulário (ProdutoDialog), usando só o flutter_test.
+// O app inteiro não é testado aqui porque o SharedPreferencesAsync precisa
+// da plataforma real (Chrome/Android). O teste principal do CRUD é o roteiro
+// manual da seção 4 (pasta testes/).
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:crud_shared_preferences/main.dart';
+import 'package:crud_shared_preferences/widgets/produto_dialog.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('Formulário impede salvar com campos vazios', (WidgetTester tester) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: ProdutoDialog())),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // Sem produto, o diálogo abre em modo de cadastro.
+    expect(find.text('Cadastrar produto'), findsOneWidget);
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
+    // Tocar em Salvar sem preencher mostra as mensagens dos validators.
+    await tester.tap(find.text('Salvar'));
     await tester.pump();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Informe o nome.'), findsOneWidget);
+    expect(find.text('Informe um preço válido (maior ou igual a zero).'), findsOneWidget);
   });
 }
