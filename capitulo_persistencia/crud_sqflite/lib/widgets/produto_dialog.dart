@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import '../models/categoria.dart';
 import '../models/produto.dart';
 
 class ProdutoDialog extends StatefulWidget {
   final Produto? produto;
+  // A6: categorias que aparecem no DropdownButtonFormField.
+  // A tela busca a lista no repositório; o diálogo só a exibe.
+  final List<Categoria> categorias;
 
-  const ProdutoDialog({super.key, this.produto});
+  const ProdutoDialog({super.key, this.produto, this.categorias = const []});
 
   @override
   State<ProdutoDialog> createState() => _ProdutoDialogState();
@@ -15,10 +19,12 @@ class _ProdutoDialogState extends State<ProdutoDialog> {
   late final TextEditingController _nomeController;
   late final TextEditingController _precoController;
   late final TextEditingController _quantidadeController; // A1
+  int? _categoriaId; // A6: null = "Sem categoria".
 
   @override
   void initState() {
     super.initState();
+    _categoriaId = widget.produto?.categoriaId;
     _nomeController = TextEditingController(text: widget.produto?.nome ?? '');
     _precoController = TextEditingController(
       text: widget.produto == null
@@ -56,6 +62,7 @@ class _ProdutoDialogState extends State<ProdutoDialog> {
         nome: nome,
         preco: preco,
         quantidade: quantidade,
+        categoriaId: _categoriaId,
       ),
     );
   }
@@ -129,6 +136,28 @@ class _ProdutoDialogState extends State<ProdutoDialog> {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+                // A6: escolha da categoria (widget do próprio Material).
+                // O valor de cada item é o ID da categoria; null = sem categoria.
+                DropdownButtonFormField<int?>(
+                  initialValue: _categoriaId,
+                  decoration: const InputDecoration(
+                    labelText: 'Categoria',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: [
+                    const DropdownMenuItem<int?>(
+                      value: null,
+                      child: Text('Sem categoria'),
+                    ),
+                    for (final categoria in widget.categorias)
+                      DropdownMenuItem<int?>(
+                        value: categoria.id,
+                        child: Text(categoria.nome),
+                      ),
+                  ],
+                  onChanged: (valor) => setState(() => _categoriaId = valor),
                 ),
               ],
             ),

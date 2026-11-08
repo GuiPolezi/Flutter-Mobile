@@ -91,3 +91,29 @@ Procedimento: cadastrar `Item A`, `Item B`, `Item C` (preço 1, quantidade 1) �
 Explicação: `RESPOSTAS.md`, seção A5.
 
 Conferência manual: ______
+
+## A6 — Desafio: categorias (somente P2)
+
+Esquema versão 3: tabela `categorias (id, nome UNIQUE)` com Papelaria, Escritório e Informática;
+coluna `produtos.categoria_id REFERENCES categorias(id)`; `PRAGMA foreign_keys = ON` no `onConfigure`.
+
+| # | Procedimento | Resultado esperado | Observado | Conferência manual |
+|---|---|---|---|---|
+| A6.1 | **Migração v2 → v3:** com produtos gravados pela versão da A5, executar a versão da A6 **sem desinstalar** | Produtos antigos continuam com preço e estoque e aparecem com "Sem categoria" | | |
+| A6.2 | **Migração v1 → v3:** com um banco da Etapa 4 (versão 1), executar a versão da A6 | O `onUpgrade` aplica os dois passos: `Estoque: 0` e "Sem categoria" | | |
+| A6.3 | **Instalação nova:** desinstalar e executar; Novo produto → `Mouse`, `50`, `2`, categoria **Informática** | Lista mostra `Mouse` / `R$ 50,00 • Estoque: 2` / `Informática` | | |
+| A6.4 | Abrir o dropdown "Categoria" | Opções: Sem categoria, Escritório, Informática, Papelaria (nome crescente) | | |
+| A6.5 | Editar um produto "Sem categoria" → escolher Papelaria → Salvar | A lista passa a mostrar "Papelaria" (nome vindo do `LEFT JOIN`) | | |
+| A6.6 | Editar um produto com categoria → o dropdown já abre com a categoria atual | Mostra a categoria gravada (`initialValue`) | | |
+| A6.7 | Editar → escolher "Sem categoria" → Salvar | Volta para "Sem categoria" (`categoria_id` = NULL) | | |
+| A6.8 | Busca e ordenação continuam funcionando com a categoria | Mesmos resultados de A3/A4, agora com a linha da categoria | | |
+
+### Divergência entre os projetos a partir da A6
+
+`diff` dos três arquivos que eram iguais até a A5 (commit `6db9f63`):
+
+- `models/produto.dart`: P2 tem `categoriaId` e `categoriaNome` (opcionais) e `categoria_id` no `toMap`.
+- `widgets/produto_dialog.dart`: P2 recebe `categorias` e tem o `DropdownButtonFormField`.
+- `screens/produtos_page.dart`: P2 carrega `listarCategorias()`, passa a lista ao diálogo, envia
+  `categoriaId` ao `inserir` e mostra a categoria (`isThreeLine`).
+- Novo arquivo só no P2: `models/categoria.dart`.

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../data/produto_repository.dart';
+import '../models/categoria.dart';
 import '../models/produto.dart';
 import '../widgets/produto_dialog.dart';
 
@@ -15,6 +16,7 @@ class ProdutosPage extends StatefulWidget {
 class _ProdutosPageState extends State<ProdutosPage> {
   final ProdutoRepository _repositorio = ProdutoRepository();
   List<Produto> _produtos = [];
+  List<Categoria> _categorias = []; // A6: opções do formulário.
   bool _carregando = true;
   bool _processando = false;
   String? _erro;
@@ -43,9 +45,12 @@ class _ProdutosPageState extends State<ProdutosPage> {
         ordenarPorNome: _ordenarPorNome,
         busca: _buscaController.text,
       );
+      // A6: as categorias também vêm do banco.
+      final categorias = await _repositorio.listarCategorias();
       if (!mounted) return;
       setState(() {
         _produtos = produtos;
+        _categorias = categorias;
         _erro = null;
       });
     } catch (erro) {
@@ -68,7 +73,10 @@ class _ProdutosPageState extends State<ProdutosPage> {
 
     final produto = await showDialog<Produto>(
       context: context,
-      builder: (_) => ProdutoDialog(produto: produtoOriginal),
+      builder: (_) => ProdutoDialog(
+        produto: produtoOriginal,
+        categorias: _categorias,
+      ),
     );
     if (produto == null || !mounted) return;
 
@@ -79,6 +87,7 @@ class _ProdutosPageState extends State<ProdutosPage> {
           produto.nome,
           produto.preco,
           produto.quantidade,
+          produto.categoriaId,
         );
       } else {
         await _repositorio.atualizar(produto);
@@ -207,8 +216,11 @@ class _ProdutosPageState extends State<ProdutosPage> {
                                 // A1: preço e estoque na mesma linha, como no Material 2.
                                 subtitle: Text(
                                   'R\$ ${produto.preco.toStringAsFixed(2).replaceAll('.', ',')}'
-                                  ' • Estoque: ${produto.quantidade}',
+                                  ' • Estoque: ${produto.quantidade}'
+                                  // A6: nome trazido pelo LEFT JOIN.
+                                  '\n${produto.categoriaNome ?? 'Sem categoria'}',
                                 ),
+                                isThreeLine: true,
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
